@@ -1,56 +1,139 @@
-import time
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tuğba Gürüz Simülasyonu</title>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #1a1a2e;
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+        margin: 0;
+    }
+    #game-container {
+        background-color: #16213e;
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 600px;
+        margin: 40px auto;
+        box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+    }
+    h1 {
+        color: #e94560;
+        margin-bottom: 5px;
+    }
+    .stats {
+        display: flex;
+        justify-content: space-around;
+        background-color: #0f3460;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+    .stat-value {
+        color: #e94560;
+    }
+    #story-text {
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        min-height: 80px;
+    }
+    .btn {
+        background-color: #e94560;
+        color: white;
+        border: none;
+        padding: 15px 25px;
+        margin: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+    .btn:hover {
+        background-color: #d1304b;
+    }
+</style>
+</head>
+<body>
 
-class TugbaSimulasyonu:
-    def __init__(self):
-        self.enerji = 100
-        self.odak = 100
-        self.yks_hedefi = 0
+<div id="game-container">
+    <h1>Tuğba Gürüz</h1>
+    <p>Hayat Simülasyonu</p>
+    
+    <div class="stats">
+        <span>Enerji: <span id="enerji" class="stat-value">100</span></span>
+        <span>Odak: <span id="odak" class="stat-value">100</span></span>
+        <span>YKS Hedefi: <span class="stat-value">%</span><span id="yks" class="stat-value">0</span></span>
+    </div>
 
-    def oyunu_baslat(self):
-        print("=== TUĞBA GÜRÜZ: BİR HAYAT SİMÜLASYONU ===")
-        time.sleep(1)
-        print("\nSabah saat 08:00. Tuğba yatağında gözlerini açtı...")
-        time.sleep(1)
-        print("Bugün hayatının geri kalanını şekillendirecek o gün olabilir.")
-        time.sleep(1)
-        self.ilk_ikilem()
+    <div id="story-text">
+        Sabah saat 08:00. Tuğba yatağında gözlerini açtı...<br><br>
+        Bugün hayatının geri kalanını şekillendirecek o gün olabilir. Ne yapmalı?
+    </div>
 
-    def ilk_ikilem(self):
-        print("\n[ SEÇİM EKRANI ]")
-        print("1 - Telefona bak (Instagram ve TikTok'ta kaybol)")
-        print("2 - YKS çalışmaya başla (Masanın başına geçip paragraf çöz)")
+    <div id="choices">
+        <button class="btn" onclick="secimYap('telefon')">Telefona Bak</button>
+        <button class="btn" onclick="secimYap('yks')">YKS Çalışmaya Başla</button>
+    </div>
+</div>
+
+<script>
+    // Oyunun başlangıç değerleri
+    let enerji = 100;
+    let odak = 100;
+    let yks_hedefi = 0;
+
+    // Ekrandaki değerleri güncelleyen fonksiyon
+    function durumlariGuncelle() {
+        document.getElementById('enerji').innerText = enerji;
+        document.getElementById('odak').innerText = odak;
+        document.getElementById('yks').innerText = yks_hedefi;
+    }
+
+    // Seçim yapıldığında çalışacak ana fonksiyon
+    function secimYap(secim) {
+        let hikaye = document.getElementById('story-text');
+        let butonlar = document.getElementById('choices');
+
+        if(secim === 'telefon') {
+            enerji -= 10;
+            odak -= 40;
+            hikaye.innerHTML = "Tuğba telefonu eline aldı... 2 saat su gibi akıp geçti. Reels izlerken zaman algısı yok oldu.<br><br><b>Sonuç:</b> Kötü bir başlangıç. Akşama kadar vicdan azabı çekilecek.";
+            
+            // Oyunu bitirip başa dönme butonu çıkartıyoruz
+            butonlar.innerHTML = '<button class="btn" onclick="basaDon()">Başa Dön</button>';
+        } 
+        else if(secim === 'yks') {
+            enerji -= 25;
+            yks_hedefi += 20;
+            hikaye.innerHTML = "Tuğba iradesini topladı, yorganı fırlattı ve masaya oturdu!<br><br>30 paragraf, 20 problem çözüldü. YKS maratonunda sağlam bir adım atıldı.<br><br><b>Sonuç:</b> Güne harika başlandı, motivasyon tavan!";
+            
+            // Oyunu bitirip başa dönme butonu çıkartıyoruz
+            butonlar.innerHTML = '<button class="btn" onclick="basaDon()">Başa Dön</button>';
+        }
         
-        secim = input("\nKanka seçimin nedir? (1 veya 2 tuşla): ")
+        // Seçimden sonra barları güncelle
+        durumlariGuncelle();
+    }
+
+    // Oyunu sıfırlayan fonksiyon
+    function basaDon() {
+        enerji = 100;
+        odak = 100;
+        yks_hedefi = 0;
         
-        if secim == '1':
-            self.telefona_bak()
-        elif secim == '2':
-            self.yks_calis()
-        else:
-            print("\nYanlış tuşa bastın kanka, Tuğba uyuyakaldı! Tekrar dene.")
-            self.ilk_ikilem()
+        document.getElementById('story-text').innerHTML = "Sabah saat 08:00. Tuğba yatağında gözlerini açtı...<br><br>Bugün hayatının geri kalanını şekillendirecek o gün olabilir. Ne yapmalı?";
+        document.getElementById('choices').innerHTML = '<button class="btn" onclick="secimYap(\'telefon\')">Telefona Bak</button> <button class="btn" onclick="secimYap(\'yks\')">YKS Çalışmaya Başla</button>';
+        
+        durumlariGuncelle();
+    }
+</script>
 
-    def telefona_bak(self):
-        print("\n-> Tuğba telefonu eline aldı...")
-        time.sleep(1)
-        print("-> 2 saat su gibi akıp geçti. Reels izlerken zaman algısı yok oldu.")
-        self.odak -= 40
-        self.enerji -= 10
-        print(f"\n[DURUM GÜNCELLEMESİ] Odak: {self.odak}/100 | Enerji: {self.enerji}/100")
-        print("Sonuç: Kötü bir başlangıç. Akşama kadar vicdan azabı çekilecek.")
-        # Buraya oyunu devam ettirecek yeni bir fonksiyon eklenebilir (örn: self.oglen_secimi())
-
-    def yks_calis(self):
-        print("\n-> Tuğba iradesini topladı, yorganı fırlattı ve masaya oturdu!")
-        time.sleep(1)
-        print("-> 30 paragraf, 20 problem çözüldü. YKS maratonunda sağlam bir adım atıldı.")
-        self.yks_hedefi += 20
-        self.enerji -= 25
-        print(f"\n[DURUM GÜNCELLEMESİ] YKS İlerlemesi: %{self.yks_hedefi} | Enerji: {self.enerji}/100")
-        print("Sonuç: Güne harika başlandı, motivasyon tavan!")
-        # Buraya oyunu devam ettirecek yeni bir fonksiyon eklenebilir (örn: self.oglen_secimi())
-
-# Oyunu çalıştıran kod bloğu
-if __name__ == "__main__":
-    oyun = TugbaSimulasyonu()
-    oyun.oyunu_baslat()
+</body>
+</html>
