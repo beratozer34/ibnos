@@ -1,0 +1,56 @@
+import time
+
+class TugbaSimulasyonu:
+    def __init__(self):
+        self.enerji = 100
+        self.odak = 100
+        self.yks_hedefi = 0
+
+    def oyunu_baslat(self):
+        print("=== TUĞBA GÜRÜZ: BİR HAYAT SİMÜLASYONU ===")
+        time.sleep(1)
+        print("\nSabah saat 08:00. Tuğba yatağında gözlerini açtı...")
+        time.sleep(1)
+        print("Bugün hayatının geri kalanını şekillendirecek o gün olabilir.")
+        time.sleep(1)
+        self.ilk_ikilem()
+
+    def ilk_ikilem(self):
+        print("\n[ SEÇİM EKRANI ]")
+        print("1 - Telefona bak (Instagram ve TikTok'ta kaybol)")
+        print("2 - YKS çalışmaya başla (Masanın başına geçip paragraf çöz)")
+        
+        secim = input("\nKanka seçimin nedir? (1 veya 2 tuşla): ")
+        
+        if secim == '1':
+            self.telefona_bak()
+        elif secim == '2':
+            self.yks_calis()
+        else:
+            print("\nYanlış tuşa bastın kanka, Tuğba uyuyakaldı! Tekrar dene.")
+            self.ilk_ikilem()
+
+    def telefona_bak(self):
+        print("\n-> Tuğba telefonu eline aldı...")
+        time.sleep(1)
+        print("-> 2 saat su gibi akıp geçti. Reels izlerken zaman algısı yok oldu.")
+        self.odak -= 40
+        self.enerji -= 10
+        print(f"\n[DURUM GÜNCELLEMESİ] Odak: {self.odak}/100 | Enerji: {self.enerji}/100")
+        print("Sonuç: Kötü bir başlangıç. Akşama kadar vicdan azabı çekilecek.")
+        # Buraya oyunu devam ettirecek yeni bir fonksiyon eklenebilir (örn: self.oglen_secimi())
+
+    def yks_calis(self):
+        print("\n-> Tuğba iradesini topladı, yorganı fırlattı ve masaya oturdu!")
+        time.sleep(1)
+        print("-> 30 paragraf, 20 problem çözüldü. YKS maratonunda sağlam bir adım atıldı.")
+        self.yks_hedefi += 20
+        self.enerji -= 25
+        print(f"\n[DURUM GÜNCELLEMESİ] YKS İlerlemesi: %{self.yks_hedefi} | Enerji: {self.enerji}/100")
+        print("Sonuç: Güne harika başlandı, motivasyon tavan!")
+        # Buraya oyunu devam ettirecek yeni bir fonksiyon eklenebilir (örn: self.oglen_secimi())
+
+# Oyunu çalıştıran kod bloğu
+if __name__ == "__main__":
+    oyun = TugbaSimulasyonu()
+    oyun.oyunu_baslat()
