@@ -1,139 +1,230 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tuğba Gürüz Simülasyonu</title>
-<style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #1a1a2e;
-        color: #fff;
-        text-align: center;
-        padding: 20px;
-        margin: 0;
-    }
-    #game-container {
-        background-color: #16213e;
-        padding: 30px;
-        border-radius: 15px;
-        max-width: 600px;
-        margin: 40px auto;
-        box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
-    }
-    h1 {
-        color: #e94560;
-        margin-bottom: 5px;
-    }
-    .stats {
-        display: flex;
-        justify-content: space-around;
-        background-color: #0f3460;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        font-weight: bold;
-    }
-    .stat-value {
-        color: #e94560;
-    }
-    #story-text {
-        font-size: 18px;
-        line-height: 1.6;
-        margin-bottom: 30px;
-        min-height: 80px;
-    }
-    .btn {
-        background-color: #e94560;
-        color: white;
-        border: none;
-        padding: 15px 25px;
-        margin: 10px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-    .btn:hover {
-        background-color: #d1304b;
-    }
-</style>
+    <meta charset="UTF-8">
+    <title>Tuğba 2D Simülasyon</title>
+    <style>
+        body { 
+            margin: 0; 
+            background-color: #2f3640; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+        h1 {
+            color: #e1b12c;
+            margin-top: 20px;
+            margin-bottom: 5px;
+        }
+        canvas { 
+            background-color: #dcdde1; 
+            border: 5px solid #e1b12c; 
+            border-radius: 10px; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            box-shadow: 0px 0px 30px rgba(0,0,0,0.8);
+        }
+        #ui { 
+            display: flex; 
+            gap: 30px; 
+            margin-top: 15px; 
+            font-size: 22px; 
+            font-weight: bold; 
+        }
+        .stat { 
+            background: #192a56; 
+            padding: 10px 25px; 
+            border-radius: 8px; 
+            border: 2px solid #273c75;
+        }
+        p {
+            font-size: 18px;
+            color: #7f8fa6;
+        }
+    </style>
 </head>
 <body>
-
-<div id="game-container">
-    <h1>Tuğba Gürüz</h1>
-    <p>Hayat Simülasyonu</p>
+    <h1>Tuğba Gürüz Simülasyonu</h1>
+    <div id="ui">
+        <div class="stat">Enerji: <span id="enerji">100</span></div>
+        <div class="stat">Odak: <span id="odak">100</span></div>
+        <div class="stat">YKS: %<span id="yks">0</span></div>
+    </div>
     
-    <div class="stats">
-        <span>Enerji: <span id="enerji" class="stat-value">100</span></span>
-        <span>Odak: <span id="odak" class="stat-value">100</span></span>
-        <span>YKS Hedefi: <span class="stat-value">%</span><span id="yks" class="stat-value">0</span></span>
-    </div>
+    <!-- Gerçek 2D Oyun Ekranı (Canvas) -->
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
+    <p>Seçim yapmak için odadaki nesnelerin üzerine tıkla!</p>
 
-    <div id="story-text">
-        Sabah saat 08:00. Tuğba yatağında gözlerini açtı...<br><br>
-        Bugün hayatının geri kalanını şekillendirecek o gün olabilir. Ne yapmalı?
-    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Başlangıç İstatistikleri
+        let enerji = 100;
+        let odak = 100;
+        let yks = 0;
+        let sahne = "oda"; // Sahneler: oda, telefon_sonu, yks_sonu
+        
+        // Tıklanabilir Koordinat Alanları (x, y, genişlik, yükseklik)
+        const telefonAlan = { x: 120, y: 280, w: 80, h: 50 };
+        const masaAlan = { x: 600, y: 230, w: 120, h: 70 };
+        const butonAlan = { x: 300, y: 350, w: 200, h: 50 };
 
-    <div id="choices">
-        <button class="btn" onclick="secimYap('telefon')">Telefona Bak</button>
-        <button class="btn" onclick="secimYap('yks')">YKS Çalışmaya Başla</button>
-    </div>
-</div>
-
-<script>
-    // Oyunun başlangıç değerleri
-    let enerji = 100;
-    let odak = 100;
-    let yks_hedefi = 0;
-
-    // Ekrandaki değerleri güncelleyen fonksiyon
-    function durumlariGuncelle() {
-        document.getElementById('enerji').innerText = enerji;
-        document.getElementById('odak').innerText = odak;
-        document.getElementById('yks').innerText = yks_hedefi;
-    }
-
-    // Seçim yapıldığında çalışacak ana fonksiyon
-    function secimYap(secim) {
-        let hikaye = document.getElementById('story-text');
-        let butonlar = document.getElementById('choices');
-
-        if(secim === 'telefon') {
-            enerji -= 10;
-            odak -= 40;
-            hikaye.innerHTML = "Tuğba telefonu eline aldı... 2 saat su gibi akıp geçti. Reels izlerken zaman algısı yok oldu.<br><br><b>Sonuç:</b> Kötü bir başlangıç. Akşama kadar vicdan azabı çekilecek.";
+        function drawRoom() {
+            // Duvar
+            ctx.fillStyle = '#f5f6fa';
+            ctx.fillRect(0, 0, 800, 300);
             
-            // Oyunu bitirip başa dönme butonu çıkartıyoruz
-            butonlar.innerHTML = '<button class="btn" onclick="basaDon()">Başa Dön</button>';
-        } 
-        else if(secim === 'yks') {
-            enerji -= 25;
-            yks_hedefi += 20;
-            hikaye.innerHTML = "Tuğba iradesini topladı, yorganı fırlattı ve masaya oturdu!<br><br>30 paragraf, 20 problem çözüldü. YKS maratonunda sağlam bir adım atıldı.<br><br><b>Sonuç:</b> Güne harika başlandı, motivasyon tavan!";
+            // Zemin
+            ctx.fillStyle = '#7f8fa6';
+            ctx.fillRect(0, 300, 800, 150);
             
-            // Oyunu bitirip başa dönme butonu çıkartıyoruz
-            butonlar.innerHTML = '<button class="btn" onclick="basaDon()">Başa Dön</button>';
+            // Yatak
+            ctx.fillStyle = '#4bcffa'; // Yorgan
+            ctx.fillRect(50, 200, 220, 120);
+            ctx.fillStyle = '#0fbcf9'; // Karyola
+            ctx.fillRect(50, 320, 220, 40);
+            
+            // Yatağın üstündeki Telefon
+            ctx.fillStyle = '#1e272e';
+            ctx.fillRect(telefonAlan.x, telefonAlan.y, telefonAlan.w, telefonAlan.h);
+            ctx.fillStyle = '#00a8ff';
+            ctx.fillRect(telefonAlan.x + 5, telefonAlan.y + 5, telefonAlan.w - 10, telefonAlan.h - 10);
+            ctx.fillStyle = 'white';
+            ctx.font = '16px Arial';
+            ctx.fillText('Telefon', telefonAlan.x + 12, telefonAlan.y - 10);
+            
+            // Çalışma Masası
+            ctx.fillStyle = '#8c7ae6'; // Masa rengi
+            ctx.fillRect(550, 150, 200, 170);
+            
+            // Masadaki YKS Kitapları
+            ctx.fillStyle = '#e1b12c';
+            ctx.fillRect(masaAlan.x, masaAlan.y, masaAlan.w, masaAlan.h);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(masaAlan.x + 5, masaAlan.y + 5, masaAlan.w - 10, masaAlan.h - 10);
+            ctx.fillStyle = 'black';
+            ctx.font = '16px Arial';
+            ctx.fillText('Kitaplar', masaAlan.x + 30, masaAlan.y - 10);
+            
+            // Tuğba'nın 2D Çizimi (Odanın Ortasında)
+            drawTugba(400, 170);
+
+            // Bilgi metni
+            ctx.fillStyle = '#2f3640';
+            ctx.font = 'bold 26px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Sabah 08:00. Ne yapacaksın?', 400, 50);
+            ctx.textAlign = 'left'; // Ortalamayı sıfırla
         }
-        
-        // Seçimden sonra barları güncelle
-        durumlariGuncelle();
-    }
 
-    // Oyunu sıfırlayan fonksiyon
-    function basaDon() {
-        enerji = 100;
-        odak = 100;
-        yks_hedefi = 0;
-        
-        document.getElementById('story-text').innerHTML = "Sabah saat 08:00. Tuğba yatağında gözlerini açtı...<br><br>Bugün hayatının geri kalanını şekillendirecek o gün olabilir. Ne yapmalı?";
-        document.getElementById('choices').innerHTML = '<button class="btn" onclick="secimYap(\'telefon\')">Telefona Bak</button> <button class="btn" onclick="secimYap(\'yks\')">YKS Çalışmaya Başla</button>';
-        
-        durumlariGuncelle();
-    }
-</script>
+        function drawTugba(x, y) {
+            // Kafa
+            ctx.fillStyle = '#f8c291';
+            ctx.beginPath();
+            ctx.arc(x, y, 35, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Gövde
+            ctx.fillStyle = '#e55039';
+            ctx.fillRect(x - 25, y + 35, 50, 80);
+            
+            // Gözler
+            ctx.fillStyle = 'black';
+            ctx.fillRect(x - 15, y - 5, 6, 6);
+            ctx.fillRect(x + 10, y - 5, 6, 6);
+            
+            // İsim etiketi
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 18px Arial';
+            ctx.fillText('TUĞBA', x - 30, y - 45);
+        }
 
+        function drawSonuc(mesaj, arkaPlanRengi) {
+            // Arka planı boya
+            ctx.fillStyle = arkaPlanRengi;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Sonuç metnini yazdır (Metni | işaretinden bölüp alt alta yazıyoruz)
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 30px Arial';
+            ctx.textAlign = 'center';
+            const satirlar = mesaj.split('|');
+            for(let i=0; i<satirlar.length; i++) {
+                ctx.fillText(satirlar[i], 400, 150 + (i*45));
+            }
+
+            // Başa Dön Butonu
+            ctx.fillStyle = '#1e272e';
+            ctx.fillRect(butonAlan.x, butonAlan.y, butonAlan.w, butonAlan.h);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 20px Arial';
+            ctx.fillText('Başa Dön', 400, 382);
+            ctx.textAlign = 'left'; // Reset
+        }
+
+        function statlariGuncelle() {
+            document.getElementById('enerji').innerText = enerji;
+            document.getElementById('odak').innerText = odak;
+            document.getElementById('yks').innerText = yks;
+        }
+
+        // Ekrandaki her şeyi baştan çizen ana döngü fonksiyonu
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (sahne === "oda") {
+                drawRoom();
+            } else if (sahne === "telefon_sonu") {
+                drawSonuc("Instagram'da Reels batağına düşüldü...|2 saat su gibi aktı.|Vicdan azabı tavan yaptı!", "#c23616"); // Kırmızı ekran
+            } else if (sahne === "yks_sonu") {
+                drawSonuc("Yorgan fırlatıldı ve masaya geçildi!|20 Problem, 30 Paragraf tokatlandı.|Netler artıyor, moral harika!", "#44bd32"); // Yeşil ekran
+            }
+            statlariGuncelle();
+        }
+
+        // Fare Tıklama Olayları (Hitbox kontrolü)
+        canvas.addEventListener('click', (e) => {
+            // Tıklanılan noktanın Canvas içindeki X ve Y koordinatlarını bul
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (sahne === "oda") {
+                // Telefona tıklandı mı? (Alan içinde mi kontrolü)
+                if (mouseX >= telefonAlan.x && mouseX <= telefonAlan.x + telefonAlan.w &&
+                    mouseY >= telefonAlan.y && mouseY <= telefonAlan.y + telefonAlan.h) {
+                    enerji -= 10;
+                    odak -= 40;
+                    sahne = "telefon_sonu";
+                    render();
+                }
+                // Kitaplara/Masaya tıklandı mı?
+                else if (mouseX >= masaAlan.x && mouseX <= masaAlan.x + masaAlan.w &&
+                         mouseY >= masaAlan.y && mouseY <= masaAlan.y + masaAlan.h) {
+                    enerji -= 25;
+                    yks += 20;
+                    sahne = "yks_sonu";
+                    render();
+                }
+            } else {
+                // Sonuç ekranındayken "Başa Dön" butonuna tıklandı mı?
+                if (mouseX >= butonAlan.x && mouseX <= butonAlan.x + butonAlan.w &&
+                    mouseY >= butonAlan.y && mouseY <= butonAlan.y + butonAlan.h) {
+                    // Statları sıfırla ve odaya dön
+                    enerji = 100;
+                    odak = 100;
+                    yks = 0;
+                    sahne = "oda";
+                    render();
+                }
+            }
+        });
+
+        // Oyunu ilk kez ekrana çiz
+        render();
+    </script>
 </body>
 </html>
